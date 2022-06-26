@@ -13,6 +13,5 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::resource('/', '\App\Http\Controllers\StudentDetails');
+Route::get('/searchStudent', '\App\Http\Controllers\StudentDetails@searchStudent');
