@@ -73,6 +73,7 @@
                         <td>{{ $student->student_name }}</td>
                         <td>{{ $student->roll_no }}</td>
                         <td>
+                                @if(!empty($student['subjectScore']) && $student['subjectScore']->count())
                                 <table class="table">
                                         <tr>
                                                 <th>Class</th>
@@ -87,6 +88,9 @@
                                         </tr>
                                         @endforeach
                                 </table>
+                                @else
+                                        <p>Subject Score Search Not Found.</p>
+                                @endif
                         </td>
                 </tr>
                 @endforeach
@@ -97,11 +101,16 @@
                 @endif
                 </tbody>
         </table>
-        {!! $students->links() !!}
+        <div>{!! $students->links() !!}</div>
 </div>
 <script>
 $(document).ready(function () {
-    $('#example').DataTable();
+    $('#example').DataTable({
+        paging: false,
+        ordering: false,
+        info: false,
+    });
+    
 });
 function resetFun(){
    document.location.href = '/';

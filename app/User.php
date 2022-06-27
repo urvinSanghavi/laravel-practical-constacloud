@@ -6,6 +6,7 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\DB;
 
 class User extends Authenticatable
 {
@@ -26,24 +27,16 @@ class User extends Authenticatable
         return $this->hasMany(SubjectScore::class, 'student_id', 'id');
     }
 
-    // public function studentSubject(){
-    //     return $this->belongsToMany(Subject::class, 'subject_scores', 'student_id', 'subject_id');
-    // }
-
-    // public function studentClass(){
-    //     return $this->belongsToMany(StudentClass::class, 'subject_scores', 'student_id', 'class_id');
-    // }
-
     public static function addStudents($students){
         return User::create($students);
     }
 
     public static function getAllStudents(){
-        // return User::with('subjectScore', 'studentSubject', 'studentClass')->paginate(10);
-        return User::with('subjectScore.studentSubject', 'subjectScore.studentClass')->paginate(10);
+        return User::with('subjectScore.studentSubject', 'subjectScore.studentClass')->orderBy('created_at', 'DESC')->paginate(10);
     }
 
     public static function getFilterValue($data){
+        
         $query = User::with('subjectScore.studentSubject', 'subjectScore.studentClass');
         if(isset($data['student_id'])){
             $query->where('id', $data['student_id']);
@@ -60,9 +53,21 @@ class User extends Authenticatable
                     }
                 ]
             );
+            
         }
         return $query->paginate(10);
         
+    }
+
+    public static function getAllStudentWithAPI(){
+        return User::join(
+            'subject_scores as ss', 'users.id', '=', 'ss.student_id'
+        )->join(
+            'subjects as sub', 'sub.id', '=', 'ss.subject_id'
+        )->join(
+            'class as cls', 'cls.id', '=', 'ss.class_id'
+        )
+        ->get(['student_name', 'roll_no', 'image_path', 'class', 'subject_name', 'Scores'])->groupBy('student_name');
     }
 }
 
